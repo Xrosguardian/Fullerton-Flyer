@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --color-bg-deep: #220033;
+  --color-neon-purple: #9D00FF;
+  --color-matrix-green: #00FF99;
+  --color-cyber-blue: #00D9FF;
+  --color-dark-purple: #1a0026;
+  font-family: 'Orbitron', system-ui, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, var(--color-bg-deep) 0%, var(--color-dark-purple) 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(0deg,
+      rgba(157, 0, 255, 0.03) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(157, 0, 255, 0.03) 3px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#game-container {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 40px rgba(157, 0, 255, 0.5),
+    0 0 80px rgba(0, 217, 255, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--color-neon-purple);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Auth Forms */
+.auth-form {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(34, 0, 51, 0.95);
+  border: 2px solid var(--color-neon-purple);
+  border-radius: 12px;
+  padding: 20px;
+  min-width: 280px;
+  box-shadow: 0 0 30px rgba(157, 0, 255, 0.6);
+  z-index: 1000;
+}
+
+.auth-form h2 {
+  color: var(--color-matrix-green);
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 24px;
+  text-shadow: 0 0 10px var(--color-matrix-green);
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--color-neon-purple);
+  border-radius: 6px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--color-matrix-green);
+  box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background: linear-gradient(135deg, var(--color-neon-purple), var(--color-cyber-blue));
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.auth-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(157, 0, 255, 0.6);
+}
+
+.auth-form .toggle-link {
+  text-align: center;
+  margin-top: 15px;
+  color: var(--color-cyber-blue);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.auth-form .toggle-link:hover {
+  color: var(--color-matrix-green);
+  text-decoration: underline;
+}
+
+.auth-form .error-message {
+  color: #ff3366;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+/* Loading spinner */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-matrix-green);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Disclaimer Modal */
+.disclaimer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.disclaimer-box {
+  background: rgba(34, 0, 51, 0.95);
+  border: 2px solid var(--color-neon-purple);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(157, 0, 255, 0.4);
+}
+
+.disclaimer-title {
+  color: var(--color-matrix-green);
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.disclaimer-content {
+  color: white;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: left;
+  border: 1px solid rgba(157, 0, 255, 0.3);
+  padding: 15px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.disclaimer-btn {
+  background: linear-gradient(135deg, var(--color-neon-purple), var(--color-cyber-blue));
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.disclaimer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(157, 0, 255, 0.6);
+}

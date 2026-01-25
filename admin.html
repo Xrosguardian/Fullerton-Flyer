@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Fullerton Value-Up Flyer</title>
+    <link rel="stylesheet" href="/src/admin.css" />
+    <link rel="icon" type="image/png" href="/assets/backgrounds/favicon.png" />
+</head>
+
+<body>
+    <div class="admin-container">
+        <header>
+            <h1>🎮 ADMIN DASHBOARD</h1>
+            <p class="subtitle">Fullerton Value-Up Flyer</p>
+        </header>
+
+        <div id="auth-section" class="section">
+            <h2>Authentication Required</h2>
+            <input type="email" id="admin-email" placeholder="Admin Email" />
+            <input type="password" id="admin-password" placeholder="Password" />
+            <button id="login-btn" class="btn-primary">LOGIN</button>
+            <button id="back-to-game-btn" class="btn-secondary" style="width: 100%; margin-top: 10px;">BACK TO
+                GAME</button>
+            <p id="auth-error" class="error-message"></p>
+        </div>
+
+        <div id="dashboard-section" class="section" style="display: none;">
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <h3 id="total-users">0</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-games">-</h3>
+                    <p>Games Played</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="highest-score">0</h3>
+                    <p>Highest Score</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="disclaimer-settings-btn" class="btn-secondary">📝 DISCLAIMER</button>
+                <button id="export-btn" class="btn-secondary">📥 EXPORT CSV</button>
+                <button id="refresh-btn" class="btn-secondary">🔄 REFRESH</button>
+                <button id="logout-btn" class="btn-logout">LOGOUT</button>
+            </div>
+
+            <!-- Disclaimer Settings Section (Hidden by default) -->
+            <div id="disclaimer-section" class="section" style="display: none; margin-bottom: 20px;">
+                <h3 style="color: var(--color-matrix-green); margin-bottom: 15px;">Disclaimer Settings</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: white; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="disclaimer-enabled" style="width: auto; margin: 0;">
+                        Enable Disclaimer Popup on Login
+                    </label>
+                </div>
+                <textarea id="disclaimer-text" rows="5"
+                    style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--color-neon-purple); color: white; border-radius: 6px; font-family: inherit; resize: vertical; margin-bottom: 10px;"
+                    placeholder="Enter disclaimer text here..."></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button id="save-disclaimer-btn" class="btn-primary" style="width: auto;">SAVE CHANGES</button>
+                    <button id="cancel-disclaimer-btn" class="btn-secondary" style="width: auto;">CANCEL</button>
+                </div>
+                <p id="disclaimer-message" class="error-message" style="color: var(--color-matrix-green);"></p>
+            </div>
+
+            <div class="table-container">
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>High Score</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr>
+                            <td colspan="4" class="loading-row">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/admin.js"></script>
+</body>
+
+</html>

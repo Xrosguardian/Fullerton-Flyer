@@ -1,0 +1,17 @@
+{
+    "rules": {
+        "users": {
+            ".indexOn": [
+                "highScore"
+            ],
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "config": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        ".read": false,
+        ".write": false
+    }
+}

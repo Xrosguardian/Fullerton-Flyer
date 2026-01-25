@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+    --color-bg-deep: #220033;
+    --color-neon-purple: #9D00FF;
+    --color-matrix-green: #00FF99;
+    --color-cyber-blue: #00D9FF;
+    --color-dark-purple: #1a0026;
+    font-family: 'Orbitron', system-ui, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, var(--color-bg-deep) 0%, var(--color-dark-purple) 100%);
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        repeating-linear-gradient(0deg,
+            rgba(157, 0, 255, 0.03) 0px,
+            transparent 1px,
+            transparent 2px,
+            rgba(157, 0, 255, 0.03) 3px);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px var(--color-neon-purple);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: var(--color-matrix-green);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--color-cyber-blue);
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+.section {
+    background: rgba(34, 0, 51, 0.8);
+    border: 1px solid var(--color-neon-purple);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* Auth Section */
+#auth-section {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#auth-section h2 {
+    color: var(--color-matrix-green);
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--color-neon-purple);
+    border-radius: 6px;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--color-matrix-green);
+    box-shadow: 0 0 10px rgba(0, 255, 153, 0.3);
+}
+
+button {
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--color-neon-purple), var(--color-cyber-blue));
+    color: white;
+    font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(157, 0, 255, 0.4);
+}
+
+.error-message {
+    color: #ff3366;
+    margin-top: 15px;
+    min-height: 20px;
+}
+
+/* Dashboard Stats */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--color-cyber-blue);
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 2.5rem;
+    color: var(--color-matrix-green);
+    margin-bottom: 5px;
+}
+
+.stat-card p {
+    color: var(--color-cyber-blue);
+    font-size: 0.9rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-secondary {
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid var(--color-cyber-blue);
+    color: var(--color-cyber-blue);
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 217, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+}
+
+.btn-logout {
+    background: rgba(255, 51, 102, 0.1);
+    border: 1px solid #ff3366;
+    color: #ff3366;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 51, 102, 0.2);
+    box-shadow: 0 0 10px rgba(255, 51, 102, 0.3);
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(157, 0, 255, 0.3);
+}
+
+th {
+    color: var(--color-cyber-blue);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--color-neon-purple);
+}
+
+td {
+    font-size: 0.95rem;
+}
+
+tr:hover td {
+    background: rgba(157, 0, 255, 0.1);
+}
+
+.loading-row {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-matrix-green);
+}
