@@ -102,11 +102,14 @@ export default class GameOverScene extends Phaser.Scene {
 
             // Buttons
             this.createButtons();
+
+            // Social Sharing
+            this.createSocialButtons();
         }
     }
 
     async createLeaderboard() {
-        this.add.text(160, 220, 'TOP FLYERS', {
+        this.add.text(160, 210, 'TOP FLYERS', {
             fontFamily: 'Orbitron',
             fontSize: '16px',
             fontStyle: 'bold',
@@ -119,10 +122,10 @@ export default class GameOverScene extends Phaser.Scene {
 
         if (result.success) {
             if (result.leaderboard.length > 0) {
-                const leaderboard = result.leaderboard.slice(0, 5); // Top 5
+                const leaderboard = result.leaderboard.slice(0, 3); // Top 3 to avoid overlap
 
                 leaderboard.forEach((user, index) => {
-                    const y = 250 + index * 25;
+                    const y = 235 + index * 22;
                     const rank = index + 1;
                     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
 
@@ -151,9 +154,176 @@ export default class GameOverScene extends Phaser.Scene {
                 color: '#FF3366',
                 wordWrap: { width: 300 }
             }).setOrigin(0.5);
+            this.add.text(160, 260, `Error: ${result.error}`, {
+                fontFamily: 'Orbitron',
+                fontSize: '12px',
+                color: '#FF3366',
+                wordWrap: { width: 300 }
+            }).setOrigin(0.5);
         }
     }
 
+    createSocialButtons() {
+        this.add.text(160, 310, 'SHARE SCORE', {
+            fontFamily: 'Orbitron',
+            fontSize: '14px',
+            color: '#FFFFFF',
+            shadow: { blur: 5, color: '#9D00FF', fill: true }
+        }).setOrigin(0.5);
+
+        const highScore = this.registry.get('highScore') || 0;
+
+        const shareData = {
+            title: 'Fullerton Value-Up Flyer',
+            text: `I just scored ${this.finalScore} (Personal Best: ${highScore}) in Fullerton Value-Up Flyer! Can you beat me?`,
+            url: window.location.origin
+        };
+
+        // Handle localhost URL for better compatibility
+        if (shareData.url.includes('localhost') || shareData.url.includes('127.0.0.1')) {
+            shareData.url = 'https://fullerton-flyer.web.app';
+        }
+
+        // Shared Button Creator Helper
+        const btnSize = 35;
+        const halfSize = btnSize / 2;
+
+        const createBtn = (x, text, config, url, isCopy = false) => {
+            const container = this.add.container(x, 350);
+
+            // Background
+            const bg = this.add.graphics();
+            if (config.gradient) {
+                bg.fillGradientStyle(config.gradient[0], config.gradient[1], config.gradient[2], config.gradient[3], 1, 1, 1, 1);
+            } else {
+                bg.fillStyle(config.color, 1);
+            }
+            bg.fillRoundedRect(-halfSize, -halfSize, btnSize, btnSize, 8);
+
+            // White Border
+            bg.lineStyle(2, 0xFFFFFF, 1);
+            bg.strokeRoundedRect(-halfSize, -halfSize, btnSize, btnSize, 8);
+
+            container.add(bg);
+
+            // Icon/Text
+            const icon = this.add.text(0, 0, text, {
+                fontFamily: 'Arial',
+                fontSize: '18px',
+                color: '#FFFFFF',
+                fontStyle: config.bold ? 'bold' : 'normal'
+            }).setOrigin(0.5).setPadding(0, 2);
+            container.add(icon);
+
+            // Interaction
+            const hitArea = new Phaser.Geom.Rectangle(-halfSize, -halfSize, btnSize, btnSize);
+            container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+
+            container.on('pointerdown', () => {
+                if (isCopy) {
+                    const copyText = `${shareData.text}\n${shareData.url}`;
+                    navigator.clipboard.writeText(copyText).then(() => {
+                        icon.setText('✓');
+                        this.time.delayedCall(1000, () => icon.setText(text));
+                    });
+                } else if (url) {
+                    window.open(url, '_blank');
+                }
+            });
+
+            container.on('pointerover', () => {
+                this.tweens.add({ targets: container, scale: 1.1, duration: 100 });
+                // Note: Clearing graphics might remove the border if we don't redraw it. 
+                // Since this is a simple scaler, we can let it be or redraw if we wanted color shift.
+                // For now, simpler is better to avoid complexity. The scale is enough feedback.
+            });
+            container.on('pointerout', () => this.tweens.add({ targets: container, scale: 1.0, duration: 100 }));
+
+            return container;
+        };
+
+        // Web Share API (Mobile/Native) - Main Button + Copy
+        if (navigator.share) {
+            // 1. Native Share Button (Shifted Left)
+            const container = this.add.container(130, 350);
+
+            const bg = this.add.graphics();
+            bg.fillGradientStyle(0x9D00FF, 0x00D9FF, 0x9D00FF, 0x00D9FF, 1, 1, 1, 1);
+            bg.fillRoundedRect(-50, -20, 100, 40, 10); // Slightly smaller width (100)
+            bg.lineStyle(2, 0xFFFFFF, 1);
+            bg.strokeRoundedRect(-50, -20, 100, 40, 10);
+            container.add(bg);
+
+            const text = this.add.text(0, 0, 'SHARE', {
+                fontFamily: 'Orbitron',
+                fontSize: '16px',
+                fontStyle: 'bold',
+                color: '#FFFFFF'
+            }).setOrigin(0.5);
+            container.add(text);
+
+            const hitArea = new Phaser.Geom.Rectangle(-50, -20, 100, 40);
+            container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+
+            container.on('pointerdown', async () => {
+                try {
+                    const sharePayload = {
+                        title: shareData.title,
+                        text: `${shareData.text}\n${shareData.url}`
+                    };
+                    await navigator.share(sharePayload);
+                } catch (err) {
+                    console.log('Share failed:', err);
+                }
+            });
+
+            container.on('pointerover', () => {
+                this.tweens.add({ targets: container, scale: 1.1, duration: 100 });
+                bg.clear();
+                bg.fillGradientStyle(0x00FF99, 0x00D9FF, 0x00FF99, 0x00D9FF, 1, 1, 1, 1);
+                bg.fillRoundedRect(-50, -20, 100, 40, 10);
+                bg.strokeRoundedRect(-50, -20, 100, 40, 10);
+            });
+            container.on('pointerout', () => {
+                this.tweens.add({ targets: container, scale: 1.0, duration: 100 });
+                bg.clear();
+                bg.fillGradientStyle(0x9D00FF, 0x00D9FF, 0x9D00FF, 0x00D9FF, 1, 1, 1, 1);
+                bg.fillRoundedRect(-50, -20, 100, 40, 10);
+                bg.strokeRoundedRect(-50, -20, 100, 40, 10);
+            });
+
+            // 2. Copy Button (Shifted Right)
+            createBtn(220, '📋', { gradient: [0x9D00FF, 0x00D9FF, 0x9D00FF, 0x00D9FF] }, null, true);
+
+            return;
+        }
+
+        // --- FALLBACK (Desktop/Non-supporting browsers) ---
+        // Layout: 5 buttons centered
+        const btnCount = 5;
+        const spacing = 45;
+        const totalWidth = (btnCount - 1) * spacing;
+        const startX = 160 - (totalWidth / 2);
+
+        // 1. Twitter
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
+        createBtn(startX, '𝕏', { color: 0x000000 }, twitterUrl);
+
+        // 2. Facebook
+        const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}&quote=${encodeURIComponent(shareData.text)}`;
+        createBtn(startX + spacing, 'f', { color: 0x1877F2, bold: true }, fbUrl);
+
+        // 3. WhatsApp
+        const waUrl = `https://web.whatsapp.com/send?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`;
+        createBtn(startX + spacing * 2, '💬', { color: 0x25D366 }, waUrl);
+
+        // 4. Reddit
+        const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(shareData.text)}`;
+        createBtn(startX + spacing * 3, '👽', { color: 0xFF4500 }, redditUrl);
+
+        // 5. Copy Link
+        createBtn(startX + spacing * 4, '📋', { color: 0x666666 }, null, true);
+    }
     createButtons() {
         // Retry button
         const retryButton = this.add.text(160, 400, 'RETRY', {
