@@ -227,3 +227,29 @@ tr:hover td {
     padding: 40px;
     color: var(--color-matrix-green);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 20px 15px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .controls button {
+        width: 100%;
+        padding: 15px;
+        /* Larger touch target */
+    }
+
+    .stat-card h3 {
+        font-size: 2rem;
+    }
+}
