@@ -1,4 +1,7 @@
 import { firebaseService } from './services/firebaseService.js';
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
+injectSpeedInsights();
 
 // DOM Elements
 const authSection = document.getElementById('auth-section');
