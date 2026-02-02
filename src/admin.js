@@ -3,7 +3,7 @@ import { firebaseService } from './services/firebaseService.js';
 // DOM Elements
 const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
-const adminEmail = document.getElementById('admin-email');
+const adminUsername = document.getElementById('admin-username');
 const adminPassword = document.getElementById('admin-password');
 const loginBtn = document.getElementById('login-btn');
 const authError = document.getElementById('auth-error');
@@ -56,7 +56,7 @@ disclaimerSettingsBtn.addEventListener('click', openDisclaimerSettings);
 saveDisclaimerBtn.addEventListener('click', saveDisclaimerSettings);
 cancelDisclaimerBtn.addEventListener('click', closeDisclaimerSettings);
 
-adminEmail.addEventListener('keypress', (e) => {
+adminUsername.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleLogin();
 });
 
@@ -66,20 +66,26 @@ adminPassword.addEventListener('keypress', (e) => {
 
 // Functions
 async function handleLogin() {
-    const email = adminEmail.value.trim();
+    const username = adminUsername.value.trim();
     const password = adminPassword.value;
 
     authError.textContent = '';
 
-    if (!email || !password) {
-        authError.textContent = 'Please enter email and password';
+    if (!username || !password) {
+        authError.textContent = 'Please enter username and password';
+        return;
+    }
+
+    // Strict Admin Access Control
+    if (username !== 'fullerton' || password !== 'letsfly') {
+        authError.textContent = 'Invalid admin credentials';
         return;
     }
 
     loginBtn.textContent = 'LOGGING IN...';
     loginBtn.disabled = true;
 
-    const result = await firebaseService.login(email, password);
+    const result = await firebaseService.login(username, password);
 
     if (result.success) {
         showDashboard();
@@ -98,7 +104,7 @@ async function handleLogout() {
 function showAuth() {
     authSection.style.display = 'block';
     dashboardSection.style.display = 'none';
-    adminEmail.value = '';
+    adminUsername.value = '';
     adminPassword.value = '';
     authError.textContent = '';
     loginBtn.textContent = 'LOGIN';
@@ -127,7 +133,7 @@ async function loadUsers() {
 
 function displayUsers(users) {
     if (users.length === 0) {
-        usersTbody.innerHTML = '<tr><td colspan="4" class="loading-row">No users found</td></tr>';
+        usersTbody.innerHTML = '<tr><td colspan="3" class="loading-row">No users found</td></tr>';
         return;
     }
 
@@ -137,7 +143,6 @@ function displayUsers(users) {
     usersTbody.innerHTML = sortedUsers.map(user => `
     <tr>
       <td>${escapeHtml(user.username || 'N/A')}</td>
-      <td>${escapeHtml(user.email || 'N/A')}</td>
       <td style="color: #00FF99; font-weight: bold;">${user.highScore || 0}</td>
       <td>${formatDate(user.createdAt)}</td>
     </tr>

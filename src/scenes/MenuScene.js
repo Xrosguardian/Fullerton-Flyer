@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { firebaseService } from '../services/firebaseService.js';
+import { MuteButton } from '../components/MuteButton.js';
 
 export default class MenuScene extends Phaser.Scene {
     constructor() {
@@ -8,11 +9,16 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     create() {
+        // SECURITY: Kill any lingering UIScene from previous sessions
+        if (this.scene.get('UIScene')) {
+            this.scene.stop('UIScene');
+        }
+
         // Add background
         this.add.image(160, 240, 'bg_sky_night').setAlpha(0.5);
 
         // Add title
-        const title = this.add.text(160, 80, 'FULLERTON\nVALUE-UP\nFLYER', {
+        const title = this.add.text(160, 80, 'FULLERTON\nFLYER', {
             fontFamily: 'Orbitron',
             fontSize: '24px',
             fontStyle: 'bold',
@@ -41,6 +47,9 @@ export default class MenuScene extends Phaser.Scene {
         // if we just ignore the auth state callback for navigation.
         // However, to be safe and clean:
         firebaseService.logout().catch(err => console.error('Logout error:', err));
+
+        // Mute Button (Integrated Component)
+        new MuteButton(this, 280, 20);
     }
 
 
@@ -52,10 +61,7 @@ export default class MenuScene extends Phaser.Scene {
 
         formContainer.innerHTML = `
       <h2 id="form-title">LOGIN</h2>
-      <div id="username-field" style="display: none;">
-        <input type="text" id="username" placeholder="Username" />
-      </div>
-      <input type="email" id="email" placeholder="Email" required />
+      <input type="text" id="username" placeholder="Username" required />
       <input type="password" id="password" placeholder="Password" required />
       <button id="submit-btn">LOGIN</button>
       <div class="toggle-link" id="toggle-link">
@@ -75,7 +81,7 @@ export default class MenuScene extends Phaser.Scene {
         });
 
         // Allow Enter key to submit
-        document.getElementById('email').addEventListener('keypress', (e) => {
+        document.getElementById('username').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.handleSubmit();
         });
         document.getElementById('password').addEventListener('keypress', (e) => {
@@ -88,7 +94,6 @@ export default class MenuScene extends Phaser.Scene {
         const formTitle = document.getElementById('form-title');
         const submitBtn = document.getElementById('submit-btn');
         const toggleLink = document.getElementById('toggle-link');
-        const usernameField = document.getElementById('username-field');
         const errorMessage = document.getElementById('error-message');
 
         errorMessage.textContent = '';
@@ -97,32 +102,24 @@ export default class MenuScene extends Phaser.Scene {
             formTitle.textContent = 'LOGIN';
             submitBtn.textContent = 'LOGIN';
             toggleLink.innerHTML = 'Don\'t have an account? <span style="color: #00FF99;">Register</span>';
-            usernameField.style.display = 'none';
         } else {
             formTitle.textContent = 'REGISTER';
             submitBtn.textContent = 'REGISTER';
             toggleLink.innerHTML = 'Already have an account? <span style="color: #00FF99;">Login</span>';
-            usernameField.style.display = 'block';
         }
     }
 
     async handleSubmit() {
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
         const username = document.getElementById('username')?.value.trim();
+        const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('error-message');
         const submitBtn = document.getElementById('submit-btn');
 
         errorMessage.textContent = '';
 
         // Validation
-        if (!email || !password) {
+        if (!username || !password) {
             errorMessage.textContent = 'Please fill in all fields';
-            return;
-        }
-
-        if (!this.isLogin && !username) {
-            errorMessage.textContent = 'Username is required';
             return;
         }
 
@@ -132,9 +129,9 @@ export default class MenuScene extends Phaser.Scene {
 
         let result;
         if (this.isLogin) {
-            result = await firebaseService.login(email, password);
+            result = await firebaseService.login(username, password);
         } else {
-            result = await firebaseService.register(email, password, username);
+            result = await firebaseService.register(username, password);
         }
 
         if (result.success) {

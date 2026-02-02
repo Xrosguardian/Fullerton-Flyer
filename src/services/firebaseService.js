@@ -14,6 +14,7 @@ import {
     update,
     query,
     orderByChild,
+    equalTo,
     limitToLast
 } from 'firebase/database';
 import { firebaseConfig } from '../config/firebase.config.js';
@@ -42,16 +43,44 @@ class FirebaseService {
         this.authStateCallback = callback;
     }
 
-    // Register new user
-    async register(email, password, username) {
+    // Check if username exists
+    async checkUsernameExists(username) {
         try {
+            const usersQuery = query(
+                ref(database, 'users'),
+                orderByChild('username'),
+                equalTo(username)
+            );
+            const snapshot = await get(usersQuery);
+            return snapshot.exists();
+        } catch (error) {
+            console.error("Error checking username:", error);
+            // Default to false if error, or handle gracefully? 
+            // Better to assume it doesn't exist or rethrow, but here we'll return false to fallback to auth error if collision happens later (unlikely with fake emails).
+            return false;
+        }
+    }
+
+    // Register new user
+    async register(username, password) {
+        try {
+            // Check if username already exists
+            const exists = await this.checkUsernameExists(username);
+            if (exists) {
+                return { success: false, error: 'Username already taken' };
+            }
+
+            // Create fake email for Firebase Auth
+            const lowerUsername = username.toLowerCase().replace(/\s/g, '');
+            const email = `${lowerUsername}@fullerton.com`;
+
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             // Create user profile in database
             await set(ref(database, 'users/' + user.uid), {
                 username: username,
-                email: email,
+                email: email, // Store the fake email just in case
                 highScore: 0,
                 gamesPlayed: 0,
                 createdAt: new Date().toISOString()
@@ -64,8 +93,11 @@ class FirebaseService {
     }
 
     // Login existing user
-    async login(email, password) {
+    async login(username, password) {
         try {
+            const lowerUsername = username.toLowerCase().replace(/\s/g, '');
+            const email = `${lowerUsername}@fullerton.com`;
+
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             return { success: true, user: userCredential.user };
         } catch (error) {

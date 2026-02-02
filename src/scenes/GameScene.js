@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { MuteButton } from '../components/MuteButton.js';
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
@@ -11,17 +12,23 @@ export default class GameScene extends Phaser.Scene {
         this.level = 1;
         this.gameSpeed = 200;
         this.obstacleTimer = 0;
-        this.obstacleInterval = 1800;
+        this.obstacleInterval = 1400; // Reduced to show 2 sets of pipes
         this.isGameOver = false;
         this.lastInputTime = 0;
-        this.idleTimeout = 60000; // 60 seconds
+        this.idleTimeout = 15000; // 15 seconds
         this.isPaused = false;
+        this.isFirstUpdate = true;
 
         // Background state
         this.timeOfDay = 0; // 0 = day, 1 = evening, 2 = night
     }
 
     create() {
+        // SECURITY: Kill any lingering UIScene
+        if (this.scene.get('UIScene')) {
+            this.scene.stop('UIScene');
+        }
+
         // Get selected character
         const selectedCharacter = this.registry.get('selectedCharacter') || 'player_plane';
 
@@ -34,8 +41,8 @@ export default class GameScene extends Phaser.Scene {
         // Create player (Centered to avoid wall collisions)
         this.player = this.physics.add.sprite(160, 240, selectedCharacter);
         this.player.setScale(0.08);
-        // Set circular body (Radius 300 * 0.05 = 15px effective) - Scaled up for better collision
-        this.player.setCircle(300);
+        // Set circular body (Radius 150 * 0.08 = 12px effective) - Scaled down for tighter collision
+        this.player.setCircle(150);
         this.player.setCollideWorldBounds(true);
 
         // Create particle emitter for smoke trail (Updated for Phaser 3.60+)
@@ -59,6 +66,10 @@ export default class GameScene extends Phaser.Scene {
 
         // Create HUD
         this.createHUD();
+
+        // Mute Button (Integrated Component)
+        // Position passed is 280, 20. Component shifts it to 260 internally for safety.
+        new MuteButton(this, 280, 20);
 
         // Input handling
         this.input.on('pointerdown', () => this.jump());
@@ -130,6 +141,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        if (this.isFirstUpdate) {
+            this.lastInputTime = time;
+            this.isFirstUpdate = false;
+        }
+
         if (this.isGameOver || this.isPaused) return;
 
         // Manual Ground and Ceiling Check
@@ -142,13 +158,11 @@ export default class GameScene extends Phaser.Scene {
             this.hitGround(this.player, null);
         }
 
-        // Check idle timeout (Disabled for debugging)
-        /*
+        // Check idle timeout
         if (time - this.lastInputTime > this.idleTimeout) {
             this.showIdleOverlay();
             return;
         }
-        */
 
         // Update backgrounds (parallax effect)
         this.bgSky.tilePositionX += this.gameSpeed * delta / 1000 * 0.1;
@@ -284,8 +298,8 @@ export default class GameScene extends Phaser.Scene {
         this.score += points;
         this.scoreText.setText(`SCORE: ${this.score}`);
 
-        // Check for level up (every 5 points)
-        const nextLevelThreshold = this.level * 5;
+        // Check for level up (every 30 points)
+        const nextLevelThreshold = this.level * 30;
         if (this.score >= nextLevelThreshold) {
             this.levelUp();
         }
@@ -296,9 +310,9 @@ export default class GameScene extends Phaser.Scene {
         this.sound.play('levelup');
         this.levelText.setText(`LEVEL: ${this.level}`);
 
-        // Increase speed
-        this.gameSpeed += 20;
-        this.obstacleInterval = Math.max(1200, this.obstacleInterval - 100);
+        // Increase speed - DISABLED for constant difficulty
+        // this.gameSpeed += 20;
+        // this.obstacleInterval = Math.max(1200, this.obstacleInterval - 100);
 
         // Change time of day
         this.timeOfDay = (this.timeOfDay + 1) % 3;

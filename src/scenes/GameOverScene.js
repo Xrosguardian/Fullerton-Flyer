@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { firebaseService } from '../services/firebaseService.js';
+import { MuteButton } from '../components/MuteButton.js';
 
 export default class GameOverScene extends Phaser.Scene {
     constructor() {
@@ -9,42 +10,54 @@ export default class GameOverScene extends Phaser.Scene {
     init(data) {
         this.finalScore = data.score || 0;
         this.finalLevel = data.level || 1;
+
+        // Idle state
+        this.idleTimeout = 15000;
+        this.lastInputTime = 0;
+        this.isPaused = false;
+        this.isFirstUpdate = true;
     }
 
     async create() {
+        // SECURITY: Kill any lingering UIScene
+        if (this.scene.get('UIScene')) {
+            this.scene.stop('UIScene');
+        }
+
         // Add background
         this.add.image(160, 240, 'bg_sky_night').setAlpha(0.5);
 
-        // Game Over title
-        const gameOverText = this.add.text(160, 60, 'GAME OVER', {
+        // Game Over logo
+        const gameOverLogo = this.add.image(160, 60, 'logo').setOrigin(0.5);
+
+        // Force linear filtering for better quality when scaling
+        gameOverLogo.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
+
+        // Responsive scaling: 60% of screen width (screen width is 320)
+        const targetWidth = 320 * 0.6;
+        const scale = targetWidth / gameOverLogo.width;
+        gameOverLogo.setScale(scale);
+
+        const username = this.registry.get('username') || 'Player';
+
+        // Congratulations text
+        this.add.text(160, 110, `Congratulations ${username}`, {
             fontFamily: 'Orbitron',
-            fontSize: '36px',
-            fontStyle: 'bold',
-            color: '#FF3366',
-            stroke: '#000000',
-            strokeThickness: 6
+            fontSize: '16px',
+            color: '#00FF99',
+            align: 'center'
         }).setOrigin(0.5);
 
-        // Pulse animation
-        this.tweens.add({
-            targets: gameOverText,
-            scaleX: 1.1,
-            scaleY: 1.1,
-            duration: 500,
-            yoyo: true,
-            repeat: -1
-        });
-
         // Score display
-        this.add.text(160, 120, `FINAL SCORE: ${this.finalScore}`, {
+        this.add.text(160, 140, `Your Score : ${this.finalScore}`, {
             fontFamily: 'Orbitron',
             fontSize: '20px',
-            color: '#00FF99',
+            color: '#FFFFFF',
             stroke: '#000000',
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        this.add.text(160, 150, `LEVEL REACHED: ${this.finalLevel}`, {
+        this.add.text(160, 170, `Level Reached : ${this.finalLevel}`, {
             fontFamily: 'Orbitron',
             fontSize: '16px',
             color: '#00D9FF',
@@ -69,7 +82,7 @@ export default class GameOverScene extends Phaser.Scene {
                     this.registry.set('highScore', this.finalScore);
 
                     // New high score text
-                    const newHighScoreText = this.add.text(160, 180, '★ NEW HIGH SCORE! ★', {
+                    const newHighScoreText = this.add.text(160, 200, '★ NEW HIGH SCORE! ★', {
                         fontFamily: 'Orbitron',
                         fontSize: '18px',
                         fontStyle: 'bold',
@@ -88,7 +101,7 @@ export default class GameOverScene extends Phaser.Scene {
                     });
                 }
             } else {
-                this.add.text(160, 180, `High Score: ${currentHighScore}`, {
+                this.add.text(160, 200, `High Score: ${currentHighScore}`, {
                     fontFamily: 'Orbitron',
                     fontSize: '16px',
                     color: '#FFFFFF',
@@ -106,10 +119,26 @@ export default class GameOverScene extends Phaser.Scene {
             // Social Sharing
             this.createSocialButtons();
         }
+
+        // Track input for idle detection
+        this.input.on('pointerdown', () => this.resetIdleTimer());
+        this.input.keyboard.on('keydown', () => this.resetIdleTimer());
+        this.resetIdleTimer();
+
+        // Mute Button (Integrated Component)
+        // Position passed is 280, 20. Component shifts it to 260 internally for safety.
+        new MuteButton(this, 280, 20);
     }
 
     async createLeaderboard() {
-        this.add.text(160, 210, 'TOP FLYERS', {
+        const result = await firebaseService.getLeaderboard();
+
+        let topScore = 0;
+        if (result.success && result.leaderboard.length > 0) {
+            topScore = result.leaderboard[0].highScore;
+        }
+
+        this.add.text(160, 230, `Top Flyer Score : ${topScore}`, {
             fontFamily: 'Orbitron',
             fontSize: '16px',
             fontStyle: 'bold',
@@ -117,50 +146,6 @@ export default class GameOverScene extends Phaser.Scene {
             stroke: '#000000',
             strokeThickness: 3
         }).setOrigin(0.5);
-
-        const result = await firebaseService.getLeaderboard();
-
-        if (result.success) {
-            if (result.leaderboard.length > 0) {
-                const leaderboard = result.leaderboard.slice(0, 3); // Top 3 to avoid overlap
-
-                leaderboard.forEach((user, index) => {
-                    const y = 235 + index * 22;
-                    const rank = index + 1;
-                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-
-                    const entryText = `${medal} ${user.username}: ${user.highScore}`;
-
-                    this.add.text(160, y, entryText, {
-                        fontFamily: 'Orbitron',
-                        fontSize: '12px',
-                        color: rank <= 3 ? '#00FF99' : '#00D9FF',
-                        stroke: '#000000',
-                        strokeThickness: 2
-                    }).setOrigin(0.5);
-                });
-            } else {
-                this.add.text(160, 260, 'No leaderboard data', {
-                    fontFamily: 'Orbitron',
-                    fontSize: '12px',
-                    color: '#666666'
-                }).setOrigin(0.5);
-            }
-        } else {
-            console.error('Leaderboard error:', result.error);
-            this.add.text(160, 260, `Error: ${result.error}`, {
-                fontFamily: 'Orbitron',
-                fontSize: '12px',
-                color: '#FF3366',
-                wordWrap: { width: 300 }
-            }).setOrigin(0.5);
-            this.add.text(160, 260, `Error: ${result.error}`, {
-                fontFamily: 'Orbitron',
-                fontSize: '12px',
-                color: '#FF3366',
-                wordWrap: { width: 300 }
-            }).setOrigin(0.5);
-        }
     }
 
     createSocialButtons() {
@@ -233,9 +218,6 @@ export default class GameOverScene extends Phaser.Scene {
 
             container.on('pointerover', () => {
                 this.tweens.add({ targets: container, scale: 1.1, duration: 100 });
-                // Note: Clearing graphics might remove the border if we don't redraw it. 
-                // Since this is a simple scaler, we can let it be or redraw if we wanted color shift.
-                // For now, simpler is better to avoid complexity. The scale is enough feedback.
             });
             container.on('pointerout', () => this.tweens.add({ targets: container, scale: 1.0, duration: 100 }));
 
@@ -378,5 +360,64 @@ export default class GameOverScene extends Phaser.Scene {
         await firebaseService.logout();
         this.registry.set('currentUser', null);
         this.scene.start('MenuScene');
+    }
+
+    update(time, delta) {
+        if (this.isFirstUpdate) {
+            this.lastInputTime = time;
+            this.isFirstUpdate = false;
+        }
+
+        if (this.isPaused) return;
+
+        // Check idle timeout
+        if (time - this.lastInputTime > this.idleTimeout) {
+            this.showIdleOverlay();
+        }
+    }
+
+    showIdleOverlay() {
+        if (this.isPaused) return;
+        this.isPaused = true;
+
+        // Create overlay
+        const overlay = this.add.rectangle(160, 240, 320, 480, 0x000000, 0.7).setDepth(1000);
+
+        const idleText = this.add.text(160, 200, 'ARE YOU THERE?', {
+            fontFamily: 'Orbitron',
+            fontSize: '28px',
+            fontStyle: 'bold',
+            color: '#00FF99',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(1001);
+
+        const tapText = this.add.text(160, 260, 'Tap to continue', {
+            fontFamily: 'Orbitron',
+            fontSize: '16px',
+            color: '#00D9FF'
+        }).setOrigin(0.5).setDepth(1001);
+
+        // Resume on input
+        const resumeHandler = () => {
+            overlay.destroy();
+            idleText.destroy();
+            tapText.destroy();
+            this.isPaused = false;
+            this.resetIdleTimer();
+
+            this.input.off('pointerdown', resumeHandler);
+            this.input.keyboard.off('keydown', resumeHandler);
+        };
+
+        // Small delay
+        this.time.delayedCall(100, () => {
+            this.input.once('pointerdown', resumeHandler);
+            this.input.keyboard.once('keydown', resumeHandler);
+        });
+    }
+
+    resetIdleTimer() {
+        this.lastInputTime = this.time.now;
     }
 }

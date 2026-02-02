@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { firebaseService } from '../services/firebaseService.js';
+import { MuteButton } from '../components/MuteButton.js';
 
 export default class CharacterSelectScene extends Phaser.Scene {
     constructor() {
@@ -8,7 +9,19 @@ export default class CharacterSelectScene extends Phaser.Scene {
         this.currentIndex = 0;
     }
 
+    init() {
+        this.idleTimeout = 15000; // 15 seconds
+        this.lastInputTime = 0;
+        this.isPaused = false;
+        this.isFirstUpdate = true;
+    }
+
     create() {
+        // SECURITY: Kill any lingering UIScene
+        if (this.scene.get('UIScene')) {
+            this.scene.stop('UIScene');
+        }
+
         // Backgrounds list
         const backgrounds = [
             'bg_sky_day', 'bg_orchid_road', 'bg_flyer', 'bg_fullerton',
@@ -47,30 +60,18 @@ export default class CharacterSelectScene extends Phaser.Scene {
                     alpha: 0,
                     duration: 1000,
                     onComplete: () => {
-                        // After swap, make bg1 visible again (behind bg2) for next swap? 
-                        // Actually, easier way: 
-                        // Once bg2 is fully visible, it becomes the "current" one.
-                        // We can just swap references so we always fade TO bg2.
-                        this.bg1.setTexture(nextBgKey).setAlpha(0.6);
-                        this.scaleBackground(this.bg1);
-                        this.bg2.setAlpha(0); // Reset bg2 for next time, but wait...
-                        // If I reset bg2 immediately, it disappears.
-                        // Better strategy: Use depth or just swap variables.
-                        // Let's just swap references.
                         const temp = this.bg1;
                         this.bg1 = this.bg2;
                         this.bg2 = temp;
-                        // Now bg1 is the visible one (nextBgKey, alpha 0.6)
-                        // bg2 is the old one (alpha 0, ready to be reused)
                     }
                 });
             },
             loop: true
         });
 
-        // Add subtle movement to the visible background (bg1 initially)
+        // Add subtle movement to the visible background
         this.tweens.add({
-            targets: [this.bg1, this.bg2], // Target both just in case
+            targets: [this.bg1, this.bg2],
             x: 170,
             duration: 3000,
             yoyo: true,
@@ -89,10 +90,9 @@ export default class CharacterSelectScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Character display
-        // Add white backdrop box
         const backdrop = this.add.graphics();
         backdrop.fillStyle(0xFFFFFF, 0.8);
-        backdrop.fillRoundedRect(80, 140, 160, 120, 15); // x, y, width, height, radius
+        backdrop.fillRoundedRect(80, 140, 160, 120, 15);
 
         this.characterSprite = this.add.image(160, 200, this.characters[this.currentIndex])
             .setScale(0.12);
@@ -157,7 +157,7 @@ export default class CharacterSelectScene extends Phaser.Scene {
                 flyButton.setScale(1);
             });
 
-        // Add keyboard controls
+        // Keyboard controls
         this.input.keyboard.on('keydown-LEFT', () => this.previousCharacter());
         this.input.keyboard.on('keydown-RIGHT', () => this.nextCharacter());
         this.input.keyboard.on('keydown-ENTER', () => this.startGame());
@@ -174,6 +174,15 @@ export default class CharacterSelectScene extends Phaser.Scene {
             .on('pointerdown', () => this.handleLogout())
             .on('pointerover', () => logoutBtn.setColor('#FFFFFF'))
             .on('pointerout', () => logoutBtn.setColor('#FF3366'));
+
+        // Track input for idle detection
+        this.input.on('pointerdown', () => this.resetIdleTimer());
+        this.input.keyboard.on('keydown', () => this.resetIdleTimer());
+        this.resetIdleTimer();
+
+        // Mute Button (Integrated Component)
+        // Position passed is 280, 20. Component shifts it to 260 internally for safety.
+        new MuteButton(this, 280, 20);
     }
 
     async handleLogout() {
@@ -209,7 +218,64 @@ export default class CharacterSelectScene extends Phaser.Scene {
     scaleBackground(image) {
         const scale = 480 / image.height;
         image.setScale(scale);
-        // Center the image horizontally based on its new width
-        // image.setX(160); // Already set at creation, but good to ensure
+    }
+
+    update(time, delta) {
+        if (this.isFirstUpdate) {
+            this.lastInputTime = time;
+            this.isFirstUpdate = false;
+        }
+
+        if (this.isPaused) return;
+
+        // Check idle timeout
+        if (time - this.lastInputTime > this.idleTimeout) {
+            this.showIdleOverlay();
+        }
+    }
+
+    showIdleOverlay() {
+        if (this.isPaused) return;
+        this.isPaused = true;
+
+        // Create overlay
+        const overlay = this.add.rectangle(160, 240, 320, 480, 0x000000, 0.7).setDepth(1000);
+
+        const idleText = this.add.text(160, 200, 'ARE YOU THERE?', {
+            fontFamily: 'Orbitron',
+            fontSize: '28px',
+            fontStyle: 'bold',
+            color: '#00FF99',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(1001);
+
+        const tapText = this.add.text(160, 260, 'Tap to continue', {
+            fontFamily: 'Orbitron',
+            fontSize: '16px',
+            color: '#00D9FF'
+        }).setOrigin(0.5).setDepth(1001);
+
+        // Resume on input
+        const resumeHandler = () => {
+            overlay.destroy();
+            idleText.destroy();
+            tapText.destroy();
+            this.isPaused = false;
+            this.resetIdleTimer();
+
+            this.input.off('pointerdown', resumeHandler);
+            this.input.keyboard.off('keydown', resumeHandler);
+        };
+
+        // Small delay to prevent immediate trigger if bubbling
+        this.time.delayedCall(100, () => {
+            this.input.once('pointerdown', resumeHandler);
+            this.input.keyboard.once('keydown', resumeHandler);
+        });
+    }
+
+    resetIdleTimer() {
+        this.lastInputTime = this.time.now;
     }
 }

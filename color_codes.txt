@@ -1,0 +1,122 @@
+Hex Codes:
+#220033
+  - src/style.css:4
+  - src/scenes/GameOverScene.js:353
+
+#9D00FF
+  - src/style.css:5
+  - src/scenes/MenuScene.js:21
+  - src/scenes/GameScene.js:313
+  - src/scenes/GameOverScene.js:77, 116, 171, 340
+
+#00FF99
+  - src/style.css:6
+  - src/scenes/MenuScene.js:19, 62, 99, 104
+  - src/scenes/GameScene.js:115, 312, 408
+  - src/scenes/GameOverScene.js:42, 137, 334, 344
+
+#00D9FF
+  - src/style.css:7
+  - src/scenes/GameScene.js:124, 416
+  - src/scenes/GameOverScene.js:50, 137, 352
+
+#1a0026
+  - src/style.css:8
+
+#ff3366
+  - src/style.css:133
+
+#444
+  - src/scenes/MenuScene.js:65
+
+#666
+  - src/scenes/MenuScene.js:65
+
+#000000
+  - src/scenes/GameScene.js:116, 125, 270, 409
+  - src/scenes/GameOverScene.js:24, 43, 51, 95, 117, 138
+
+#FFD700
+  - src/scenes/GameScene.js:269
+  - src/scenes/GameOverScene.js:76
+
+#FF3366
+  - src/scenes/GameOverScene.js:23, 154, 160
+
+#FFFFFF
+  - src/scenes/GameOverScene.js:94, 170, 213, 261, 333
+
+#666666
+  - src/scenes/GameOverScene.js:146
+
+
+RGB/RGBA Codes:
+rgba(157, 0, 255, 0.03)
+  - src/style.css:37, 40
+  - src/admin.css:34, 37
+
+rgba(157, 0, 255, 0.5)
+  - src/style.css:49
+
+rgba(0, 217, 255, 0.3)
+  - src/style.css:50
+  - src/admin.css:178
+
+rgba(0, 0, 0, 0.5)
+  - src/style.css:51, 84
+  - src/admin.css:91
+  - admin.html:62
+
+rgba(34, 0, 51, 0.95)
+  - src/style.css:63, 172
+
+rgba(157, 0, 255, 0.6)
+  - src/style.css:68, 116, 219
+
+rgba(0, 255, 153, 0.5)
+  - src/style.css:95
+
+rgba(255, 255, 255, 0.3)
+  - src/style.css:144
+
+rgba(0, 0, 0, 0.85)
+  - src/style.css:163
+
+rgba(157, 0, 255, 0.4)
+  - src/style.css:179
+  - src/admin.css:126
+
+rgba(157, 0, 255, 0.3)
+  - src/style.css:197
+  - src/admin.css:207
+
+rgba(0, 0, 0, 0.3)
+  - src/style.css:200
+  - src/admin.css:144
+
+rgba(34, 0, 51, 0.8)
+  - src/admin.css:67
+
+rgba(157, 0, 255, 0.2)
+  - src/admin.css:71
+
+rgba(0, 255, 153, 0.3)
+  - src/admin.css:102
+
+rgba(0, 217, 255, 0.1)
+  - src/admin.css:171
+
+rgba(0, 217, 255, 0.2)
+  - src/admin.css:177
+
+rgba(255, 51, 102, 0.1)
+  - src/admin.css:182
+
+rgba(255, 51, 102, 0.2)
+  - src/admin.css:188
+
+rgba(255, 51, 102, 0.3)
+  - src/admin.css:189
+
+rgba(157, 0, 255, 0.1)
+  - src/admin.css:222

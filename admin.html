@@ -7,10 +7,6 @@
     <title>Admin Dashboard - Fullerton Value-Up Flyer</title>
     <link rel="stylesheet" href="/src/admin.css" />
     <link rel="icon" type="image/png" href="/assets/backgrounds/favicon.png" />
-    <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 
 <body>
@@ -22,7 +18,7 @@
 
         <div id="auth-section" class="section">
             <h2>Authentication Required</h2>
-            <input type="email" id="admin-email" placeholder="Admin Email" />
+            <input type="text" id="admin-username" placeholder="Username" />
             <input type="password" id="admin-password" placeholder="Password" />
             <button id="login-btn" class="btn-primary">LOGIN</button>
             <button id="back-to-game-btn" class="btn-secondary" style="width: 100%; margin-top: 10px;">BACK TO
@@ -77,7 +73,6 @@
                     <thead>
                         <tr>
                             <th>Username</th>
-                            <th>Email</th>
                             <th>High Score</th>
                             <th>Created At</th>
                         </tr>

@@ -65,12 +65,12 @@ export default class BootScene extends Phaser.Scene {
         this.load.audio('crash', 'assets/audio/crash.wav');
         this.load.audio('levelup', 'assets/audio/levelup.wav');
         this.load.audio('score', 'assets/audio/score.wav');
+
+        // Load logo
+        this.load.image('logo', 'assets/backgrounds/logo1.png');
     }
 
     create() {
-        // Launch UI Scene separately so it persists and overlays everything
-        this.scene.launch('UIScene');
-
         // Create procedural graphics for missing assets
         this.createProceduralAssets();
 

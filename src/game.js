@@ -23,6 +23,11 @@ const config = {
             debug: false
         }
     },
+    render: {
+        pixelArt: false,
+        antialias: true,
+        roundPixels: false
+    },
     scene: [BootScene, MenuScene, CharacterSelectScene, GameScene, GameOverScene, UIScene]
 };
 
