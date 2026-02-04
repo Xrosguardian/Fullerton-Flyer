@@ -60,12 +60,12 @@ export default class MenuScene extends Phaser.Scene {
         formContainer.id = 'auth-form';
 
         formContainer.innerHTML = `
-      <h2 id="form-title">LOGIN</h2>
+      <h2 id="form-title">Enter</h2>
       <input type="text" id="username" placeholder="Username" required />
 
-      <button id="submit-btn">LOGIN</button>
+      <button id="submit-btn">Enter</button>
       <div class="toggle-link" id="toggle-link">
-        Don't have an account? <span style="color: #00FF99;">Register</span>
+        New user? <span style="color: #00FF99;">Register Here</span>
       </div>
       <div class="error-message" id="error-message"></div>
       <button id="admin-btn" style="margin-top: 15px; background: linear-gradient(135deg, #444, #666); font-size: 14px;">ADMIN DASHBOARD</button>
@@ -111,13 +111,13 @@ export default class MenuScene extends Phaser.Scene {
         errorMessage.textContent = '';
 
         if (this.isLogin) {
-            formTitle.textContent = 'LOGIN';
-            submitBtn.textContent = 'LOGIN';
-            toggleLink.innerHTML = 'Don\'t have an account? <span style="color: #00FF99;">Register</span>';
+            formTitle.textContent = 'Enter';
+            submitBtn.textContent = 'Enter';
+            toggleLink.innerHTML = 'New user? <span style="color: #00FF99;">Register Here</span>';
         } else {
             formTitle.textContent = 'REGISTER';
             submitBtn.textContent = 'REGISTER';
-            toggleLink.innerHTML = 'Already have an account? <span style="color: #00FF99;">Login</span>';
+            toggleLink.innerHTML = 'Already a User? <span style="color: #00FF99;">Enter Here</span>';
         }
     }
 
