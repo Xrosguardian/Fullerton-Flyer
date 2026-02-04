@@ -91,6 +91,10 @@ class FirebaseService {
 
             return { success: true, user };
         } catch (error) {
+            console.error("Registration Error:", error.code, error.message);
+            if (error.code === 'auth/email-already-in-use') {
+                return { success: false, error: 'Username already taken' };
+            }
             return { success: false, error: error.message };
         }
     }
@@ -107,6 +111,14 @@ class FirebaseService {
             const userCredential = await signInWithEmailAndPassword(auth, email, authPassword);
             return { success: true, user: userCredential.user };
         } catch (error) {
+            console.error("Login Error:", error.code, error.message);
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
+                return { success: false, error: 'Username not found' };
+            }
+            if (error.code === 'auth/wrong-password') {
+                // Should technically not happen if we use default password, but good to handle
+                return { success: false, error: 'Invalid credentials' };
+            }
             return { success: false, error: error.message };
         }
     }
