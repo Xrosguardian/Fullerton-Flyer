@@ -62,7 +62,7 @@ export default class MenuScene extends Phaser.Scene {
         formContainer.innerHTML = `
       <h2 id="form-title">LOGIN</h2>
       <input type="text" id="username" placeholder="Username" required />
-      <input type="password" id="password" placeholder="Password" required />
+
       <button id="submit-btn">LOGIN</button>
       <div class="toggle-link" id="toggle-link">
         Don't have an account? <span style="color: #00FF99;">Register</span>
@@ -81,12 +81,24 @@ export default class MenuScene extends Phaser.Scene {
         });
 
         // Allow Enter key to submit
-        document.getElementById('username').addEventListener('keypress', (e) => {
+        const usernameInput = document.getElementById('username');
+
+        // Restrict input to letters, numbers, and underscores
+        usernameInput.addEventListener('input', (e) => {
+            const start = usernameInput.selectionStart;
+            const end = usernameInput.selectionEnd;
+
+            // Remove any characters that are NOT letters, numbers, or underscores
+            usernameInput.value = usernameInput.value.replace(/[^a-zA-Z0-9_]/g, '');
+
+            // Restore selection position (improves UX when editing in middle)
+            usernameInput.setSelectionRange(start, end);
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.handleSubmit();
         });
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleSubmit();
-        });
+
     }
 
     toggleForm() {
@@ -111,15 +123,14 @@ export default class MenuScene extends Phaser.Scene {
 
     async handleSubmit() {
         const username = document.getElementById('username')?.value.trim();
-        const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('error-message');
         const submitBtn = document.getElementById('submit-btn');
 
         errorMessage.textContent = '';
 
         // Validation
-        if (!username || !password) {
-            errorMessage.textContent = 'Please fill in all fields';
+        if (!username) {
+            errorMessage.textContent = 'Please enter a username';
             return;
         }
 
@@ -129,9 +140,9 @@ export default class MenuScene extends Phaser.Scene {
 
         let result;
         if (this.isLogin) {
-            result = await firebaseService.login(username, password);
+            result = await firebaseService.login(username);
         } else {
-            result = await firebaseService.register(username, password);
+            result = await firebaseService.register(username);
         }
 
         if (result.success) {

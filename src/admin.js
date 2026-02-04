@@ -1,13 +1,10 @@
 import { firebaseService } from './services/firebaseService.js';
-import { injectSpeedInsights } from '@vercel/speed-insights';
-
-injectSpeedInsights();
 
 // DOM Elements
 const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const adminUsername = document.getElementById('admin-username');
-const adminPassword = document.getElementById('admin-password');
+
 const loginBtn = document.getElementById('login-btn');
 const authError = document.getElementById('auth-error');
 const exportBtn = document.getElementById('export-btn');
@@ -59,36 +56,38 @@ disclaimerSettingsBtn.addEventListener('click', openDisclaimerSettings);
 saveDisclaimerBtn.addEventListener('click', saveDisclaimerSettings);
 cancelDisclaimerBtn.addEventListener('click', closeDisclaimerSettings);
 
+// Restrict admin input
+adminUsername.addEventListener('input', (e) => {
+    adminUsername.value = adminUsername.value.replace(/[^a-zA-Z0-9_]/g, '');
+});
+
 adminUsername.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleLogin();
 });
 
-adminPassword.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleLogin();
-});
+
 
 // Functions
 async function handleLogin() {
     const username = adminUsername.value.trim();
-    const password = adminPassword.value;
 
     authError.textContent = '';
 
-    if (!username || !password) {
-        authError.textContent = 'Please enter username and password';
+    if (!username) {
+        authError.textContent = 'Please enter username';
         return;
     }
 
-    // Strict Admin Access Control
-    if (username !== 'fullerton' || password !== 'letsfly') {
-        authError.textContent = 'Invalid admin credentials';
+    // Strict Admin Access Control - Username Only
+    if (username !== 'fullerton_flyer_1212') {
+        authError.textContent = 'Invalid admin username';
         return;
     }
 
     loginBtn.textContent = 'LOGGING IN...';
     loginBtn.disabled = true;
 
-    const result = await firebaseService.login(username, password);
+    const result = await firebaseService.login(username);
 
     if (result.success) {
         showDashboard();
@@ -108,7 +107,7 @@ function showAuth() {
     authSection.style.display = 'block';
     dashboardSection.style.display = 'none';
     adminUsername.value = '';
-    adminPassword.value = '';
+
     authError.textContent = '';
     loginBtn.textContent = 'LOGIN';
     loginBtn.disabled = false;

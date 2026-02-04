@@ -62,7 +62,7 @@ class FirebaseService {
     }
 
     // Register new user
-    async register(username, password) {
+    async register(username, password) { // password param kept for signature compatibility but ignored for regular users
         try {
             // Check if username already exists
             const exists = await this.checkUsernameExists(username);
@@ -74,7 +74,10 @@ class FirebaseService {
             const lowerUsername = username.toLowerCase().replace(/\s/g, '');
             const email = `${lowerUsername}@fullerton.com`;
 
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // Use default password for all users
+            const DEFAULT_PASSWORD = 'flappy_default_pass_123';
+
+            const userCredential = await createUserWithEmailAndPassword(auth, email, DEFAULT_PASSWORD);
             const user = userCredential.user;
 
             // Create user profile in database
@@ -93,12 +96,15 @@ class FirebaseService {
     }
 
     // Login existing user
-    async login(username, password) {
+    async login(username, password = null) {
         try {
             const lowerUsername = username.toLowerCase().replace(/\s/g, '');
             const email = `${lowerUsername}@fullerton.com`;
 
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            // If password is not provided (regular user), use default
+            const authPassword = password || 'flappy_default_pass_123';
+
+            const userCredential = await signInWithEmailAndPassword(auth, email, authPassword);
             return { success: true, user: userCredential.user };
         } catch (error) {
             return { success: false, error: error.message };
