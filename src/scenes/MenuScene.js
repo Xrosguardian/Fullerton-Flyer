@@ -60,7 +60,7 @@ export default class MenuScene extends Phaser.Scene {
         formContainer.id = 'auth-form';
 
         formContainer.innerHTML = `
-      <h2 id="form-title">Enter</h2>
+      <h2 id="form-title">Welcome</h2></h2>
       <input type="text" id="username" placeholder="Username" required />
 
       <button id="submit-btn">Enter</button>
