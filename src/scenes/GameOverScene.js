@@ -204,7 +204,7 @@ export default class GameOverScene extends Phaser.Scene {
             const hitArea = new Phaser.Geom.Rectangle(-halfSize, -halfSize, btnSize, btnSize);
             container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-            container.on('pointerdown', () => {
+            container.on('pointerup', () => {
                 if (isCopy) {
                     const copyText = `${shareData.text}\n${shareData.url}`;
                     navigator.clipboard.writeText(copyText).then(() => {
@@ -247,11 +247,12 @@ export default class GameOverScene extends Phaser.Scene {
             const hitArea = new Phaser.Geom.Rectangle(-50, -20, 100, 40);
             container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-            container.on('pointerdown', async () => {
+            container.on('pointerup', async () => {
                 try {
                     const sharePayload = {
                         title: shareData.title,
-                        text: `${shareData.text}\n${shareData.url}`
+                        text: shareData.text,
+                        url: shareData.url
                     };
                     await navigator.share(sharePayload);
                 } catch (err) {

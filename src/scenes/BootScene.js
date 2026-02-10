@@ -35,7 +35,7 @@ export default class BootScene extends Phaser.Scene {
         // Load player sprites
         this.load.image('player_plane', 'assets/sprites/player_plane.png');
         this.load.image('player_paperplane', 'assets/sprites/player_paperplane.png');
-        this.load.image('player_paperplane2', 'assets/sprites/player_paperplane2.png');
+
         this.load.image('player_destroyer', 'assets/sprites/destroyer.png');
 
         // Load coin

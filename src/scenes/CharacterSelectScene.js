@@ -5,7 +5,7 @@ import { MuteButton } from '../components/MuteButton.js';
 export default class CharacterSelectScene extends Phaser.Scene {
     constructor() {
         super({ key: 'CharacterSelectScene' });
-        this.characters = ['player_plane', 'player_paperplane', 'player_paperplane2', 'player_destroyer'];
+        this.characters = ['player_plane', 'player_paperplane', 'player_destroyer'];
         this.currentIndex = 0;
     }
 
@@ -206,7 +206,7 @@ export default class CharacterSelectScene extends Phaser.Scene {
     }
 
     getCharacterName(index) {
-        const names = ['CYBER JET', 'PURPLE GLIDER', 'SOLAR FLYER', 'THE DESTROYER'];
+        const names = ['BO ENG', 'PURPLE GLIDER', 'AIR BOSS'];
         return names[index];
     }
 

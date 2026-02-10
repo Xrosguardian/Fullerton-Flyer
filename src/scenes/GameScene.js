@@ -93,9 +93,12 @@ export default class GameScene extends Phaser.Scene {
         this.bgSky = this.add.tileSprite(160, 240, 320, 480, 'bg_sky_day');
 
         // Fit background height to screen, maintain aspect ratio
+        // Fit background height to screen, maintain aspect ratio, BUT allow covering
         const bgTexture = this.textures.get('bg_sky_day').getSourceImage();
         if (bgTexture) {
-            const scale = 480 / bgTexture.height;
+            const scaleX = 320 / bgTexture.width;
+            const scaleY = 480 / bgTexture.height;
+            const scale = Math.max(scaleX, scaleY);
             this.bgSky.setTileScale(scale, scale);
         }
 
@@ -367,9 +370,12 @@ export default class GameScene extends Phaser.Scene {
         // this.bgCity.setTexture(cityTextures[this.timeOfDay]);
 
         // Fit background height to screen, maintain aspect ratio
+        // Fit background height to screen, maintain aspect ratio, BUT allow covering
         const bgTexture = this.textures.get(textureKey).getSourceImage();
         if (bgTexture) {
-            const scale = 480 / bgTexture.height;
+            const scaleX = 320 / bgTexture.width;
+            const scaleY = 480 / bgTexture.height;
+            const scale = Math.max(scaleX, scaleY);
             this.bgSky.setTileScale(scale, scale);
         }
     }

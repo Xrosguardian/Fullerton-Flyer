@@ -5,7 +5,7 @@ import { MuteButton } from '../components/MuteButton.js';
 export default class MenuScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MenuScene' });
-        this.isLogin = true;
+        this.isLogin = false;
     }
 
     create() {
@@ -60,15 +60,14 @@ export default class MenuScene extends Phaser.Scene {
         formContainer.id = 'auth-form';
 
         formContainer.innerHTML = `
-      <h2 id="form-title">Welcome</h2></h2>
+      <h2 id="form-title">REGISTER</h2>
       <input type="text" id="username" placeholder="Username" required />
 
-      <button id="submit-btn">Enter</button>
+      <button id="submit-btn">REGISTER</button>
       <div class="toggle-link" id="toggle-link">
-        New user? <span style="color: #00FF99;">Register Here</span>
+        Already a User? <span style="color: #00FF99;">Enter</span>
       </div>
       <div class="error-message" id="error-message"></div>
-      <button id="admin-btn" style="margin-top: 15px; background: linear-gradient(135deg, #444, #666); font-size: 14px;">ADMIN DASHBOARD</button>
     `;
 
         document.body.appendChild(formContainer);
@@ -76,9 +75,7 @@ export default class MenuScene extends Phaser.Scene {
         // Add event listeners
         document.getElementById('submit-btn').addEventListener('click', () => this.handleSubmit());
         document.getElementById('toggle-link').addEventListener('click', () => this.toggleForm());
-        document.getElementById('admin-btn').addEventListener('click', () => {
-            window.location.href = '/admin.html';
-        });
+
 
         // Allow Enter key to submit
         const usernameInput = document.getElementById('username');
@@ -112,12 +109,12 @@ export default class MenuScene extends Phaser.Scene {
 
         if (this.isLogin) {
             formTitle.textContent = 'Enter';
-            submitBtn.textContent = 'Enter';
-            toggleLink.innerHTML = 'New user? <span style="color: #00FF99;">Register Here</span>';
+            submitBtn.textContent = 'LOGIN';
+            toggleLink.innerHTML = 'New User? <span style="color: #00FF99;">Register Here</span>';
         } else {
             formTitle.textContent = 'REGISTER';
             submitBtn.textContent = 'REGISTER';
-            toggleLink.innerHTML = 'Already a User? <span style="color: #00FF99;">Enter Here</span>';
+            toggleLink.innerHTML = 'Already a User? <span style="color: #00FF99;">Enter</span>';
         }
     }
 
