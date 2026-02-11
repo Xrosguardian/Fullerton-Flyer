@@ -159,14 +159,14 @@ export default class GameOverScene extends Phaser.Scene {
         const highScore = this.registry.get('highScore') || 0;
 
         const shareData = {
-            title: 'Fullerton Value-Up Flyer',
-            text: `I just scored ${this.finalScore} (Personal Best: ${highScore}) in Fullerton Value-Up Flyer! Can you beat me?`,
+            title: 'Fullerton Flyer',
+            text: `I just scored ${this.finalScore} (Personal Best: ${highScore}) in Fullerton Flyer! Can you beat me?`,
             url: window.location.origin
         };
 
         // Handle localhost URL for better compatibility
         if (shareData.url.includes('localhost') || shareData.url.includes('127.0.0.1')) {
-            shareData.url = 'https://fullerton-flyer.web.app';
+            shareData.url = 'https://fullertonflyer.com';
         }
 
         // Shared Button Creator Helper
