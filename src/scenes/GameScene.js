@@ -89,6 +89,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     createBackgrounds() {
+        // Layer 0: Solid backing (to prevent transparency/gaps)
+        this.add.rectangle(160, 240, 320, 480, 0x000000).setDepth(-10);
+
         // Layer 1: Sky (slowest)
         this.bgSky = this.add.tileSprite(160, 240, 320, 480, 'bg_sky_day');
 
@@ -98,7 +101,7 @@ export default class GameScene extends Phaser.Scene {
         if (bgTexture) {
             const scaleX = 320 / bgTexture.width;
             const scaleY = 480 / bgTexture.height;
-            const scale = Math.max(scaleX, scaleY);
+            const scale = Math.max(scaleX, scaleY) * 1.02;
             this.bgSky.setTileScale(scale, scale);
         }
 
@@ -343,27 +346,26 @@ export default class GameScene extends Phaser.Scene {
 
     updateBackground() {
         let textureKey;
-        if (this.level >= 10) {
-            textureKey = 'bg_marina';
-        } else if (this.level >= 9) {
-            textureKey = 'bg_supertrees';
-        } else if (this.level >= 8) {
-            textureKey = 'bg_esplanade';
-        } else if (this.level >= 7) {
-            textureKey = 'bg_merlion';
-        } else if (this.level >= 6) {
-            textureKey = 'bg_china';
-        } else if (this.level >= 5) {
-            textureKey = 'bg_siloso';
-        } else if (this.level >= 4) {
-            textureKey = 'bg_fullerton';
-        } else if (this.level >= 3) {
-            textureKey = 'bg_flyer';
-        } else if (this.level === 2) {
-            textureKey = 'bg_orchid_road';
-        } else {
+        if (this.level === 1) {
             const skyTextures = ['bg_sky_day', 'bg_sky_evening', 'bg_sky_night'];
             textureKey = skyTextures[this.timeOfDay];
+        } else {
+            // Cycle through location backgrounds starting from Level 2
+            const locationBackgrounds = [
+                'bg_orchid_road', // Level 2
+                'bg_flyer',       // Level 3
+                'bg_fullerton',   // Level 4
+                'bg_siloso',      // Level 5
+                'bg_china',       // Level 6
+                'bg_merlion',     // Level 7
+                'bg_esplanade',   // Level 8
+                'bg_supertrees',  // Level 9
+                'bg_marina'       // Level 10
+            ];
+
+            // (Level 2 -> Index 0), (Level 11 -> Index 0)
+            const index = (this.level - 2) % locationBackgrounds.length;
+            textureKey = locationBackgrounds[index];
         }
 
         this.bgSky.setTexture(textureKey);
@@ -375,7 +377,7 @@ export default class GameScene extends Phaser.Scene {
         if (bgTexture) {
             const scaleX = 320 / bgTexture.width;
             const scaleY = 480 / bgTexture.height;
-            const scale = Math.max(scaleX, scaleY);
+            const scale = Math.max(scaleX, scaleY) * 1.02;
             this.bgSky.setTileScale(scale, scale);
         }
     }
