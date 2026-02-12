@@ -228,6 +228,18 @@ export default class GameScene extends Phaser.Scene {
         // Randomly select obstacle type
         const obstacleType = Phaser.Math.RND.pick(['obstacle_crane', 'obstacle_skyscraper', 'obstacle_supertree']);
 
+        // Determine hitbox dimensions
+        let widthFactor = 0.6;
+        const heightFactor = 0.85;
+
+        // Reduce hitbox for Super Tree to make it more forgiving
+        if (obstacleType === 'obstacle_supertree') {
+            widthFactor = 0.4;
+        }
+
+        const offsetX = (1 - widthFactor) / 2;
+        const offsetY = (1 - heightFactor) / 2;
+
         // Top obstacle
         const topObstacle = this.obstacles.create(370, gapY - gapSize / 2, obstacleType);
         topObstacle.setOrigin(0.5, 1);
@@ -237,9 +249,10 @@ export default class GameScene extends Phaser.Scene {
         // Scale note: Use actual height for scaling and add buffer to ensure overlap off-screen
         const topHeightNeeded = gapY - gapSize / 2 + 20; // +20px buffer to go off-screen
         topObstacle.setScale(1, topHeightNeeded / topObstacle.height);
-        // Reduce collision box size (60% width, 85% height) for easier gameplay
-        topObstacle.body.setSize(topObstacle.width * 0.6, topObstacle.height * 0.85);
-        topObstacle.body.setOffset(topObstacle.width * 0.2, topObstacle.height * 0.075);
+
+        // Apply calculated hitbox size
+        topObstacle.body.setSize(topObstacle.width * widthFactor, topObstacle.height * heightFactor);
+        topObstacle.body.setOffset(topObstacle.width * offsetX, topObstacle.height * offsetY);
         topObstacle.scored = false;
 
         // Bottom obstacle
@@ -250,10 +263,12 @@ export default class GameScene extends Phaser.Scene {
         // Extended to bottom (480) with buffer
         const bottomHeightNeeded = 480 - (gapY + gapSize / 2) + 20; // +20px buffer
         bottomObstacle.setScale(1, bottomHeightNeeded / bottomObstacle.height);
-        // Reduce collision box size (60% width, 85% height) for easier gameplay
-        bottomObstacle.body.setSize(bottomObstacle.width * 0.6, bottomObstacle.height * 0.85);
-        bottomObstacle.body.setOffset(bottomObstacle.width * 0.2, bottomObstacle.height * 0.075);
+
+        // Apply calculated hitbox size
+        bottomObstacle.body.setSize(bottomObstacle.width * widthFactor, bottomObstacle.height * heightFactor);
+        bottomObstacle.body.setOffset(bottomObstacle.width * offsetX, bottomObstacle.height * offsetY);
         bottomObstacle.scored = false;
+
 
         // Spawn coin in gap (50% chance)
         if (Math.random() > 0.5) {
