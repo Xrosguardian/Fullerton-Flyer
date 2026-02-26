@@ -10,10 +10,11 @@ export default class GameScene extends Phaser.Scene {
         // Game state
         this.score = 0;
         this.level = 1;
-        this.gameSpeed = 200;
-        this.obstacleTimer = 0;
-        this.obstacleInterval = 1400; // Reduced to show 2 sets of pipes
+        this.gameSpeed = 160;
+        this.obstacleTimer = 1000; // Start with a head start so the first pipe appears sooner
+        this.obstacleInterval = 1600; // Adjusted for slower speed to keep pipe spacing similar
         this.isGameOver = false;
+        this.isStarting = true;
         this.lastInputTime = 0;
         this.idleTimeout = 15000; // 15 seconds
         this.isPaused = false;
@@ -86,6 +87,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown', () => this.resetIdleTimer());
 
         this.resetIdleTimer();
+        this.startCountdown();
     }
 
     createBackgrounds() {
@@ -152,7 +154,7 @@ export default class GameScene extends Phaser.Scene {
             this.isFirstUpdate = false;
         }
 
-        if (this.isGameOver || this.isPaused) return;
+        if (this.isGameOver || this.isPaused || this.isStarting) return;
 
         // Manual Ground and Ceiling Check
         // Check if player hit ground (> 480) or hit world ceiling (blocked.up)
@@ -212,7 +214,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     jump() {
-        if (this.isGameOver || this.isPaused) return;
+        if (this.isGameOver || this.isPaused || this.isStarting) return;
 
         this.player.setVelocityY(-350);
         this.sound.play('jump');
@@ -472,5 +474,96 @@ export default class GameScene extends Phaser.Scene {
 
     resetIdleTimer() {
         this.lastInputTime = this.time.now;
+    }
+
+    startCountdown() {
+        this.player.body.allowGravity = false;
+        this.player.setVelocityY(0);
+
+        let count = 3;
+        const countText = this.add.text(160, 240, count.toString(), {
+            fontFamily: 'Orbitron',
+            fontSize: '80px',
+            fontStyle: 'bold',
+            color: '#00FF99',
+            stroke: '#000000',
+            strokeThickness: 8
+        }).setOrigin(0.5).setDepth(200);
+
+        const tick = () => {
+            if (count > 0) {
+                countText.setText(count.toString());
+                countText.setScale(1);
+                this.tweens.add({
+                    targets: countText,
+                    scaleX: 1.5,
+                    scaleY: 1.5,
+                    yoyo: true,
+                    duration: 300,
+                    ease: 'Sine.easeInOut'
+                });
+            } else {
+                countText.setText('GO!');
+                countText.setScale(1);
+                this.tweens.add({
+                    targets: countText,
+                    scaleX: 2,
+                    scaleY: 2,
+                    alpha: 0,
+                    duration: 800,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        countText.destroy();
+                        this.showTapToPlay();
+                    }
+                });
+            }
+        };
+
+        tick();
+
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                count--;
+                tick();
+            },
+            repeat: 2
+        });
+    }
+
+    showTapToPlay() {
+        const tapText = this.add.text(160, 240, 'Tap to play!', {
+            fontFamily: 'Orbitron',
+            fontSize: '28px',
+            fontStyle: 'bold',
+            color: '#00FF99',
+            stroke: '#000000',
+            strokeThickness: 5
+        }).setOrigin(0.5).setDepth(200);
+
+        this.tweens.add({
+            targets: tapText,
+            scaleX: 1.1,
+            scaleY: 1.1,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        const startGameHandler = () => {
+            tapText.destroy();
+            this.isStarting = false;
+            this.player.body.allowGravity = true;
+            this.resetIdleTimer();
+            this.jump(); // initial jump
+
+            this.input.off('pointerdown', startGameHandler);
+            this.input.keyboard.off('keydown', startGameHandler);
+        };
+
+        this.input.once('pointerdown', startGameHandler);
+        this.input.keyboard.once('keydown', startGameHandler);
     }
 }
